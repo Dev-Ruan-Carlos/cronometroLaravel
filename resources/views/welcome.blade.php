@@ -52,7 +52,8 @@
             if (this.isOn) {
             time += delta();
             }
-            elem.textContent = this.timeFormatter(time);
+            console.log(time);
+            elem.textContent = timeFormatter(time);
             input.value = time;
         }
 
@@ -66,6 +67,28 @@
         }
 
         this.timeFormatter = function(time) {
+            time = new Date(time);
+
+            var minutes = time.getMinutes().toString();
+            var seconds = time.getSeconds().toString();
+            var milliseconds = time.getMilliseconds().toString();
+
+            if (minutes.length < 2) {
+            minutes = '0' + minutes;
+            }
+
+            if (seconds.length < 2) {
+            seconds = '0' + seconds;
+            }
+
+            while (milliseconds.length < 3) {
+            milliseconds = '0' + milliseconds;
+            }
+
+            return minutes + ' : ' + seconds + ' : ' + milliseconds;
+        }
+
+        function timeFormatter (time) {
             time = new Date(time);
 
             var minutes = time.getMinutes().toString();

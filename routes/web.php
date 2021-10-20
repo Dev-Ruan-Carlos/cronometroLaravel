@@ -20,5 +20,5 @@ Route::get('/', function () {
 
 Route::prefix('gravar')->group(function() {
     Route::get('/', [GravarTimeController::class, 'index'])->name('welcome');
-    Route::get('gravar', [GravarTimeController::class, 'gravar'])->name('gravar');
+    Route::post('gravar', [GravarTimeController::class, 'gravar'])->name('gravar');
 });

@@ -12,4 +12,6 @@ class cronometro extends Model
     protected $table = 'tcronometro';
     protected $primaryKey = 'id';
     protected $connection = 'criador';
+
+    public $timestamps = false;
 }

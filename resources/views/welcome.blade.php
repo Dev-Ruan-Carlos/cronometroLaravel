@@ -1,27 +1,28 @@
 @extends('layouts.app')
-@section('body')   
-<form action="{{route('gravar')}}" method="POST">
-    @method('POST')
-    @csrf
+@section('body')  
     <div class="fundoazul">
         <div class="flex-jc flex-jb pt-3">
-          <button type="button" id="toggle" class="boton">Iniciar</button>
-          <button type="button" id="reset" class="boton ml-2">Resetar</button>
-              <button type="submit" id="novavolta" class="boton ml-2">Nova volta</button>
-              <button type="button" id="limparvolta" class="boton ml-2">Limpar volta</button>
+            <button type="button" id="toggle" class="boton">Iniciar</button>
+            <button type="button" id="reset" class="boton ml-2">Resetar</button>
+            <a href="javascript:void(0)" onclick="gravar(this)">
+                <button type="button" id="novavolta" class="boton ml-2" >Nova volta</button>
+            </a>
+            <a href="javascript:void(0)" onclick="cronometroDel()">
+                <button type="button" id="limparvolta" class="boton ml-2">Limpar volta</button>
+            </a>
         </div>
         <div class="flex-jc pt-17">
             <span id="timer" name="timer" class="white" style="font-size: 80px;">00 : 00 : 000</span>
             <input type="text" name="tempo" id="inputTempo" hidden>
         </div>
+        <ul id="voltas" class="white flex-c flex-jc flex-ac pt-3 pb-3" style="font-size: 17px;"></ul>
     </div>
-</form>
 <script>
-    var timer = document.getElementById('timer');
-    var toggleBtn = document.getElementById('toggle');
-    var resetBtn = document.getElementById('reset');
-
-    var watch = new Stopwatch(timer);
+    var 
+        timer = document.getElementById('timer'),
+        toggleBtn = document.getElementById('toggle'),
+        resetBtn = document.getElementById('reset'),
+        watch = new Stopwatch(timer);
 
     function start() {
         toggleBtn.textContent = 'Parar';
@@ -51,8 +52,7 @@
             if (this.isOn) {
             time += delta();
             }
-            
-            elem.textContent = timeFormatter(time);
+            elem.textContent = this.timeFormatter(time);
             input.value = time;
         }
 
@@ -65,7 +65,7 @@
             return timePassed;
         }
 
-        function timeFormatter(time) {
+        this.timeFormatter = function(time) {
             time = new Date(time);
 
             var minutes = time.getMinutes().toString();
@@ -105,6 +105,51 @@
         };
 
         this.isOn = false;
+    }
+    
+    function gravar(el){
+        var 
+            tempo = document.getElementById('inputTempo').value
+        $.ajax({
+            url: "{{route('gravar')}}",
+            type: "post",
+            data: {
+                tempo: tempo
+            },
+            success: function( data ){
+                var li = document.createElement('li');
+                li.textContent = watch.timeFormatter(parseInt(tempo));
+                li.dataset.id = data.id;
+                document.getElementById('voltas').appendChild(li);
+            },
+            beforeSend: function(request){
+                request.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').getAttribute('content'))
+            }
+        });
+    }
+
+    function cronometroDel(){
+        var 
+            voltas = [];
+
+        document.querySelectorAll('#voltas li').forEach(element => {
+            voltas.push(element.dataset.id)
+        });
+            
+        if(voltas.length == 0)
+            return;
+        
+        $.ajax({
+            url: "{{route('delete', '_voltas_')}}".replace('_voltas_', encodeURI(voltas)),
+            type: 'DELETE',
+            
+            success: function( data ){
+                document.getElementById('voltas').innerHTML = ''
+            },
+            beforeSend: function(request){
+                request.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').getAttribute('content'))
+            }
+        });
     }
 </script>
 @endsection 

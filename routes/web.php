@@ -21,4 +21,5 @@ Route::get('/', function () {
 Route::prefix('gravar')->group(function() {
     Route::get('/', [GravarTimeController::class, 'index'])->name('welcome');
     Route::post('gravar', [GravarTimeController::class, 'gravar'])->name('gravar');
+    Route::delete('delete/{voltas}', [GravarTimeController::class, 'delete'])->name('delete');
 });

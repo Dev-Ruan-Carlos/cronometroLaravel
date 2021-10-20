@@ -1,77 +1,99 @@
 @extends('layouts.app')
 @section('body')   
     <div class="fundoazul">
-        <div class="botoes white flex-jc">
-            <input type="button" class="boton white" id="inicio" value="Iniciar" onclick="inicio();">
-            <input type="button" class="boton white" id="parar" value="Parar" onclick="parar();" disabled>
-            <input type="button" class="boton white" id="continuar" value="Reiniciar" onclick="inicio();" disabled>
-            <input type="button" class="boton white" id="reinicio" value="Resetar" onclick="reinicio();" disabled>
-            <a href="{{route('gravar')}}">
-                <input type="button" class="boton white" id="reinicio" value="Nova volta" onclick="reinicio();">
-            </a>
-            <input type="button" class="boton white" id="reinicio" value="Limpar volta" onclick="reinicio();">
+        <div>
+          <button type="button" id="toggle">Start</button>
+          <button type="button" id="reset">Reset</button>
         </div>
-        <div class="contador white flex-jc" name="contador">
-            <div class="reloj white input-horas flex-ae" value=" 00" name="minutos" id="Minutos"></div>
-            <div class="reloj white input-horas flex-ae" value=":00" name="segundos" id="Segundos"></div>
-            <div class="reloj white input-horas flex-ae" value=":00" name="centesímas" id="Centesimas"></div>
-            {{-- <input type="text" name="cronometro" id="cronometro"> --}}
-        </div>
+        <span id="timer" class="white">00 : 00 : 000</span>
     </div>
 <script>
-var centesimas = 0;
-var segundos = 0;
-var minutos = 0;
-function inicio () {
-    control = setInterval(cronometro,10);
-    document.getElementById("inicio").disabled = true;
-    document.getElementById("parar").disabled = false;
-    document.getElementById("continuar").disabled = true;
-    document.getElementById("reinicio").disabled = false;
-}
-function parar () {
-    clearInterval(control);
-    document.getElementById("parar").disabled = true;
-    document.getElementById("continuar").disabled = false;
-}
-function reinicio () {
-    clearInterval(control);
-    centesimas = 0;
-    segundos = 0;
-    minutos = 0;
-    Centesimas.innerHTML = ":00";
-    Segundos.innerHTML = ":00";
-    Minutos.innerHTML = "00";
-    document.getElementById("inicio").disabled = false;
-    document.getElementById("parar").disabled = true;
-    document.getElementById("continuar").disabled = true;
-    document.getElementById("reinicio").disabled = true;
-}
-function cronometro () {
-    if (centesimas < 99) {
-        centesimas++;
-        if (centesimas < 10) { centesimas = "0"+centesimas }
-        Centesimas.innerHTML = ":"+centesimas;
+    var timer = document.getElementById('timer');
+    var toggleBtn = document.getElementById('toggle');
+    var resetBtn = document.getElementById('reset');
+
+    var watch = new Stopwatch(timer);
+
+    function start() {
+    toggleBtn.textContent = 'Stop';
+    watch.start();
     }
-    if (centesimas == 99) {
-        centesimas = -1;
+
+    function stop() {
+    toggleBtn.textContent = 'Start';
+    watch.stop();
     }
-    if (centesimas == 0) {
-        segundos ++;
-        if (segundos < 10) { segundos = "0"+segundos }
-        Segundos.innerHTML = ":"+segundos;
+
+    toggleBtn.addEventListener('click', function() {
+    watch.isOn ? stop() : start();
+    });
+
+    resetBtn.addEventListener('click', function() {
+    watch.reset();
+    });
+
+    function Stopwatch(elem) {
+    var time = 0;
+    var offset;
+    var interval;
+
+    function update() {
+        if (this.isOn) {
+        time += delta();
+        }
+        
+        elem.textContent = timeFormatter(time);
     }
-    if (segundos == 59) {
-        segundos = -1;
+
+    function delta() {
+        var now = Date.now();
+        var timePassed = now - offset;
+
+        offset = now;
+
+        return timePassed;
     }
-    if ( (centesimas == 0)&&(segundos == 0) ) {
-        minutos++;
-        if (minutos < 10) { minutos = "0"+minutos }
-        Minutos.innerHTML = ""+minutos;
+
+    function timeFormatter(time) {
+        time = new Date(time);
+
+        var minutes = time.getMinutes().toString();
+        var seconds = time.getSeconds().toString();
+        var milliseconds = time.getMilliseconds().toString();
+
+        if (minutes.length < 2) {
+        minutes = '0' + minutes;
+        }
+
+        if (seconds.length < 2) {
+        seconds = '0' + seconds;
+        }
+
+        while (milliseconds.length < 3) {
+        milliseconds = '0' + milliseconds;
+        }
+
+        return minutes + ' : ' + seconds + ' : ' + milliseconds;
     }
-    if (minutos == 59) {
-        minutos = -1;
+
+    this.start = function() {
+        interval = setInterval(update.bind(this), 10);
+        offset = Date.now();
+        this.isOn = true;
+    };
+
+    this.stop = function() {
+        clearInterval(interval);
+        interval = null;
+        this.isOn = false;
+    };
+
+    this.reset = function() {
+        time = 0;
+        update();
+    };
+
+    this.isOn = false;
     }
-}
 </script>
 @endsection 

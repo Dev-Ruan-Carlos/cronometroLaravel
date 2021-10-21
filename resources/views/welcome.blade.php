@@ -165,7 +165,6 @@
         $.ajax({
             url: "{{route('delete', '_voltas_')}}".replace('_voltas_', encodeURI(voltas)),
             type: 'DELETE',
-            
             success: function( data ){
                 document.getElementById('voltas').innerHTML = ''
             },
